@@ -17,6 +17,7 @@ CREATE TABLE `onetime_links` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `token` varchar(64) NOT NULL COMMENT '唯一Token标识',
   `user_id` bigint(20) UNSIGNED DEFAULT NULL COMMENT '创建用户ID（可选）',
+  `device_id` varchar(64) DEFAULT NULL COMMENT '创建设备ID（用于设备级数据隔离）',
   `content_type` varchar(32) NOT NULL COMMENT '内容类型：email_verify/password_reset/magic_login/secret_share/file_download/qrcode_auth/invite_code/custom',
   `content_data` text COMMENT '业务数据（JSON格式，敏感信息需加密）',
   `max_visits` int(11) NOT NULL DEFAULT 1 COMMENT '最大访问次数',
@@ -31,6 +32,7 @@ CREATE TABLE `onetime_links` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_token` (`token`),
   KEY `idx_user_id` (`user_id`),
+  KEY `idx_device_id` (`device_id`),
   KEY `idx_content_type` (`content_type`),
   KEY `idx_status_expire` (`status`, `expire_time`),
   KEY `idx_created_at` (`created_at`)

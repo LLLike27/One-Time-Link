@@ -22,12 +22,13 @@
         </a-form-item>
 
         <a-form-item label="业务数据" name="content_data">
-          <a-input
-            v-model:value="formState.content_data"
-            type="textarea"
-            :rows="4"
+          <textarea
+            v-model="formState.content_data"
+            rows="4"
             placeholder="请输入业务数据，支持文本或JSON格式"
-          />
+            class="ant-input"
+            style="width: 100%"
+          ></textarea>
         </a-form-item>
 
         <a-form-item label="最大访问次数" name="max_visits">

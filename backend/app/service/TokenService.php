@@ -40,6 +40,7 @@ class TokenService
         $link = new OnetimeLink();
         $link->token = $token;
         $link->user_id = $params['user_id'] ?? null;
+        $link->device_id = $params['device_id'] ?? null; // [OTL] 设备ID
         $link->content_type = $params['content_type'];
         $link->content_data = $this->encryptData($params['content_data'] ?? '');
         $link->max_visits = $params['max_visits'] ?? 1;
@@ -168,10 +169,13 @@ class TokenService
     /**
      * 撤销Token
      */
-    public function revokeToken(int $id, ?int $userId = null): bool
+    public function revokeToken(int $id, ?int $userId = null, ?string $deviceId = null): bool
     {
         $query = OnetimeLink::where('id', $id);
-        if ($userId) {
+        // [OTL] 设备ID优先
+        if ($deviceId) {
+            $query->where('device_id', $deviceId);
+        } elseif ($userId) {
             $query->where('user_id', $userId);
         }
 
@@ -192,10 +196,13 @@ class TokenService
     /**
      * 延长过期时间
      */
-    public function extendExpire(int $id, int $extraSeconds, ?int $userId = null): ?OnetimeLink
+    public function extendExpire(int $id, int $extraSeconds, ?int $userId = null, ?string $deviceId = null): ?OnetimeLink
     {
         $query = OnetimeLink::where('id', $id);
-        if ($userId) {
+        // [OTL] 设备ID优先
+        if ($deviceId) {
+            $query->where('device_id', $deviceId);
+        } elseif ($userId) {
             $query->where('user_id', $userId);
         }
 

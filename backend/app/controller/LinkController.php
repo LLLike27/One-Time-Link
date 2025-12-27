@@ -33,8 +33,12 @@ class LinkController extends BaseController
             return json(['code' => 400, 'message' => $e->getMessage(), 'data' => null]);
         }
 
+        // [OTL] 获取设备ID
+        $deviceId = $request->header('X-Device-Id');
+
         $params = [
             'user_id' => $request->user_id ?? null, // 从认证中间件获取
+            'device_id' => $deviceId, // 设备ID
             'content_type' => $request->post('content_type'),
             'content_data' => $request->post('content_data', ''),
             'max_visits' => (int)$request->post('max_visits', 1),
@@ -114,8 +118,10 @@ class LinkController extends BaseController
     {
         $id = (int)$request->post('id');
         $userId = $request->user_id ?? null;
+        // [OTL] 获取设备ID
+        $deviceId = $request->header('X-Device-Id');
 
-        $success = $this->tokenService->revokeToken($id, $userId);
+        $success = $this->tokenService->revokeToken($id, $userId, $deviceId);
 
         if ($success) {
             return json(['code' => 200, 'message' => 'success', 'data' => null]);
@@ -132,8 +138,10 @@ class LinkController extends BaseController
         $id = (int)$request->post('id');
         $extraSeconds = (int)$request->post('extra_seconds', 86400);
         $userId = $request->user_id ?? null;
+        // [OTL] 获取设备ID
+        $deviceId = $request->header('X-Device-Id');
 
-        $link = $this->tokenService->extendExpire($id, $extraSeconds, $userId);
+        $link = $this->tokenService->extendExpire($id, $extraSeconds, $userId, $deviceId);
 
         if ($link) {
             return json(['code' => 200, 'message' => 'success', 'data' => $link->toArray()]);
@@ -153,10 +161,16 @@ class LinkController extends BaseController
         $contentType = $request->get('content_type');
         $keyword = $request->get('keyword');
 
+        // [OTL] 获取设备ID
+        $deviceId = $request->header('X-Device-Id');
+
         $query = OnetimeLink::order('created_at', 'desc');
 
-        // 用户过滤
-        if ($request->user_id) {
+        // [OTL] 设备ID过滤（优先级高于用户ID）
+        if ($deviceId) {
+            $query->where('device_id', $deviceId);
+        } elseif ($request->user_id) {
+            // 用户过滤（后备方案）
             $query->where('user_id', $request->user_id);
         }
 
@@ -198,9 +212,15 @@ class LinkController extends BaseController
      */
     public function detail(Request $request, int $id)
     {
+        // [OTL] 获取设备ID
+        $deviceId = $request->header('X-Device-Id');
+
         $query = OnetimeLink::where('id', $id);
 
-        if ($request->user_id) {
+        // [OTL] 设备ID过滤
+        if ($deviceId) {
+            $query->where('device_id', $deviceId);
+        } elseif ($request->user_id) {
             $query->where('user_id', $request->user_id);
         }
 

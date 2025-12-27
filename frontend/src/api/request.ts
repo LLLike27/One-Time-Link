@@ -1,6 +1,7 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios'
 import { message } from 'ant-design-vue'
 import type { ApiResponse } from './types'
+import { getDeviceId } from '@/utils/storage'
 
 const service: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -14,6 +15,8 @@ service.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
+    // [OTL] 所有请求携带设备ID
+    config.headers['X-Device-Id'] = getDeviceId()
     return config
   },
   (error) => {

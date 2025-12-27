@@ -91,7 +91,7 @@ const logColumns = [
   { title: 'IP地址', dataIndex: 'ip_address', key: 'ip_address', width: 140 },
   { title: '地理位置', key: 'location', width: 150 },
   { title: '访问结果', dataIndex: 'visit_result', key: 'visit_result', width: 100 },
-  { title: 'User-Agent', dataIndex: 'user_agent', key: 'user_agent', ellipsis: true },
+  { title: 'User-Agent', dataIndex: 'user_agent', key: 'user_agent'},
 ]
 
 const linkId = computed(() => Number(route.params.id))
