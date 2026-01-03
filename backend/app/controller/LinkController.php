@@ -209,6 +209,14 @@ class LinkController extends BaseController
 
     /**
      * 获取链接详情
+     *
+     * @param Request $request 请求对象，包含以下信息：
+     *                         - header('X-Device-Id'): string|null 设备唯一标识，用于数据隔离
+     *                         - user_id: int|null 用户ID（从认证中间件注入）
+     * @param int $id 链接ID，路由参数，对应 onetime_links 表的主键
+     * @return \think\response\Json 返回JSON响应：
+     *                              - 成功: {code: 200, message: 'success', data: {链接详情+访问日志}}
+     *                              - 失败: {code: 404, message: '链接不存在', data: null}
      */
     public function detail(Request $request, int $id)
     {

@@ -10,23 +10,27 @@ export type ContentType =
   | 'custom'
 
 // 链接状态
-export enum LinkStatus {
-  ACTIVE = 1,
-  USED = 2,
-  EXPIRED = 3,
-  REVOKED = 4,
-}
+export type LinkStatus = 1 | 2 | 3 | 4
+
+export const LinkStatus = {
+  ACTIVE: 1,
+  USED: 2,
+  EXPIRED: 3,
+  REVOKED: 4,
+} as const
 
 // 访问结果
-export enum VisitResult {
-  SUCCESS = 1,
-  TOKEN_INVALID = 2,
-  EXPIRED = 3,
-  VISITS_EXCEEDED = 4,
-  IP_MISMATCH = 5,
-  DEVICE_MISMATCH = 6,
-  OTHER_ERROR = 7,
-}
+export type VisitResult = 1 | 2 | 3 | 4 | 5 | 6 | 7
+
+export const VisitResult = {
+  SUCCESS: 1,
+  TOKEN_INVALID: 2,
+  EXPIRED: 3,
+  VISITS_EXCEEDED: 4,
+  IP_MISMATCH: 5,
+  DEVICE_MISMATCH: 6,
+  OTHER_ERROR: 7,
+} as const
 
 // 创建链接参数
 export interface CreateLinkParams {

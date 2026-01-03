@@ -25,7 +25,7 @@ class LinkValidate extends Validate
         'content_data.require' => '请填写业务数据',
         'max_visits.number' => '最大访问次数必须是数字',
         'max_visits.gt' => '最大访问次数必须大于0',
-        'max_visits.max' => '最大访问次数不能超过1000',
+        'max_visits.max' => '最大访问次数不能超过999',
         'expire_time.number' => '过期时间格式不正确',
         'expire_time.egt' => '过期时间不能为负数',
     ];

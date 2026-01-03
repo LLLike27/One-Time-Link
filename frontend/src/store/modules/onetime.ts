@@ -65,10 +65,11 @@ export const useOnetimeStore = defineStore('onetime', {
     async revokeLink(id: number) {
       await onetimeApi.revokeLink(id)
       const index = this.links.findIndex((link) => link.id === id)
-      if (index > -1) {
-        this.links[index].status = 4 // REVOKED
+      const listItem = this.links[index]
+      if (listItem) {
+        listItem.status = 4 // REVOKED
       }
-      if (this.currentLink?.id === id) {
+      if (this.currentLink && this.currentLink.id === id) {
         this.currentLink.status = 4
       }
     },
@@ -79,7 +80,7 @@ export const useOnetimeStore = defineStore('onetime', {
       if (index > -1) {
         this.links[index] = link
       }
-      if (this.currentLink?.id === id) {
+      if (this.currentLink && this.currentLink.id === id) {
         this.currentLink = { ...this.currentLink, ...link }
       }
       return link

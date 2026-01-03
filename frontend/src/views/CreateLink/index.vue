@@ -1,11 +1,11 @@
 <template>
   <div class="create-link-page">
-    <a-card title="创建一次性链接">
+    <a-card title="创建一次性链接" class="page-card">
       <a-form
         :model="formState"
         :rules="rules"
-        :label-col="{ span: 6 }"
-        :wrapper-col="{ span: 14 }"
+        :label-col="labelCol"
+        :wrapper-col="wrapperCol"
         @finish="handleSubmit"
       >
         <a-form-item label="业务类型" name="content_type">
@@ -22,17 +22,16 @@
         </a-form-item>
 
         <a-form-item label="业务数据" name="content_data">
-          <textarea
-            v-model="formState.content_data"
-            rows="4"
-            placeholder="请输入业务数据，支持文本或JSON格式"
-            class="ant-input"
-            style="width: 100%"
-          ></textarea>
+          <a-textarea
+            v-model:value="formState.content_data"
+            :auto-size="{ minRows: 4, maxRows: 10 }"
+            placeholder="请输入业务数据，支持文本或 JSON 格式"
+            allow-clear
+          />
         </a-form-item>
 
         <a-form-item label="最大访问次数" name="max_visits">
-          <a-input-number v-model:value="formState.max_visits" :min="1" :max="100" style="width: 200px" />
+          <a-input-number v-model:value="formState.max_visits" :min="1" :max="999" style="width: min(220px, 100%)" />
           <span class="form-hint">默认1次，链接被访问达到此次数后失效</span>
         </a-form-item>
 
@@ -44,7 +43,7 @@
           </a-radio-group>
           <a-form-item-rest>
             <div v-if="expireType === 'preset'" style="margin-top: 8px">
-              <a-select v-model:value="presetExpire" style="width: 200px">
+              <a-select v-model:value="presetExpire" style="width: min(220px, 100%)">
                 <a-select-option :value="900">15分钟</a-select-option>
                 <a-select-option :value="3600">1小时</a-select-option>
                 <a-select-option :value="86400">24小时</a-select-option>
@@ -58,6 +57,7 @@
                 show-time
                 format="YYYY-MM-DD HH:mm:ss"
                 placeholder="选择过期时间"
+                style="width: 100%"
               />
             </div>
           </a-form-item-rest>
@@ -70,7 +70,7 @@
           </a-space>
         </a-form-item>
 
-        <a-form-item :wrapper-col="{ offset: 6, span: 14 }">
+        <a-form-item :wrapper-col="tailCol">
           <a-space>
             <a-button type="primary" html-type="submit" :loading="loading">创建链接</a-button>
             <a-button @click="handleReset">重置</a-button>
@@ -84,19 +84,19 @@
       v-model:open="successModalVisible"
       title="链接创建成功"
       :footer="null"
-      width="500px"
+      :width="isCompact ? '92vw' : 520"
     >
       <a-result status="success" title="一次性链接已生成">
         <template #extra>
           <div class="success-content">
-            <a-input-group compact>
-              <a-input :value="createdLinkUrl" readonly style="width: calc(100% - 80px)" />
-              <a-button type="primary" @click="handleCopyLink">复制链接</a-button>
+            <a-input-group compact class="link-group">
+              <a-input :value="createdLinkUrl" readonly class="link-input" />
+              <a-button type="primary" class="copy-button" @click="handleCopyLink">复制链接</a-button>
             </a-input-group>
             <div class="qrcode-wrapper">
-              <qrcode-vue :value="createdLinkUrl" :size="200" level="M" />
+              <qrcode-vue :value="createdLinkUrl" :size="isCompact ? 160 : 200" level="M" />
             </div>
-            <a-space>
+            <a-space wrap class="success-actions">
               <a-button @click="handleCreateAnother">继续创建</a-button>
               <a-button type="primary" @click="router.push('/manage')">查看管理</a-button>
             </a-space>
@@ -111,20 +111,27 @@
 import { ref, reactive, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { message } from 'ant-design-vue'
-import dayjs, { type Dayjs } from 'dayjs'
-import QrcodeVue from 'qrcode.vue'
+import type { Dayjs } from 'dayjs'
 import { useOnetimeStore } from '@/store/modules/onetime'
 import type { CreateLinkParams, ContentType } from '@/api/types'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 
 const router = useRouter()
 const route = useRoute()
 const store = useOnetimeStore()
 
+const isCompact = useMediaQuery('(max-width: 768px)')
 const loading = ref(false)
 const successModalVisible = ref(false)
 const createdLinkUrl = ref('')
 
-const formState = reactive<CreateLinkParams>({
+const labelCol = { xs: { span: 24 }, sm: { span: 6 } }
+const wrapperCol = { xs: { span: 24 }, sm: { span: 14 } }
+const tailCol = { xs: { span: 24 }, sm: { span: 14, offset: 6 } }
+
+type CreateLinkFormState = Omit<CreateLinkParams, 'content_data'> & { content_data: string }
+
+const formState = reactive<CreateLinkFormState>({
   content_type: 'secret_share' as ContentType,
   content_data: '',
   max_visits: 1,
@@ -135,7 +142,7 @@ const formState = reactive<CreateLinkParams>({
 
 const expireType = ref<'never' | 'preset' | 'custom'>('preset')
 const presetExpire = ref(86400)
-const customExpireDate = ref<Dayjs | null>(null)
+const customExpireDate = ref<Dayjs | undefined>(undefined)
 
 const rules = {
   content_type: [{ required: true, message: '请选择业务类型' }],
@@ -159,7 +166,21 @@ watch(
 const handleSubmit = async () => {
   loading.value = true
   try {
-    const link = await store.createLink(formState)
+    const trimmed = formState.content_data.trim()
+    let content_data: CreateLinkParams['content_data'] = trimmed
+
+    if (trimmed) {
+      try {
+        const parsed = JSON.parse(trimmed)
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          content_data = parsed as Record<string, any>
+        }
+      } catch {
+        content_data = trimmed
+      }
+    }
+
+    const link = await store.createLink({ ...formState, content_data })
     // [OTL] 始终使用当前域名生成链接
     createdLinkUrl.value = `${window.location.origin}/verify/${link.token}`
     successModalVisible.value = true
@@ -179,7 +200,7 @@ const handleReset = () => {
   formState.notify_on_visit = false
   expireType.value = 'preset'
   presetExpire.value = 86400
-  customExpireDate.value = null
+  customExpireDate.value = undefined
 }
 
 const handleCopyLink = async () => {
@@ -206,8 +227,13 @@ onMounted(() => {
 
 <style scoped>
 .create-link-page {
-  max-width: 800px;
+  max-width: 860px;
   margin: 0 auto;
+}
+
+.page-card {
+  border: 1px solid var(--app-border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
 .form-hint {
@@ -218,9 +244,43 @@ onMounted(() => {
 
 .success-content {
   text-align: center;
+  width: 100%;
+}
+
+.link-input {
+  width: calc(100% - 96px);
+}
+
+.copy-button {
+  width: 96px;
 }
 
 .qrcode-wrapper {
   margin: 24px 0;
+}
+
+.success-actions {
+  justify-content: center;
+}
+
+@media (max-width: 576px) {
+  .form-hint {
+    display: block;
+    margin: 6px 0 0;
+  }
+
+  .copy-button {
+    width: 100%;
+  }
+
+  .success-content :deep(.ant-input-group-compact) {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .success-content :deep(.ant-input) {
+    width: 100% !important;
+  }
 }
 </style>

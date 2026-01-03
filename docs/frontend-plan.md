@@ -677,7 +677,7 @@ defineExpose({ open })
         </a-form-item>
 
         <a-form-item label="最大访问次数" name="max_visits">
-          <a-input-number v-model:value="formState.max_visits" :min="1" :max="100" />
+          <a-input-number v-model:value="formState.max_visits" :min="1" :max="999" />
         </a-form-item>
 
         <a-form-item label="过期时间" name="expire_time">

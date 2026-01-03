@@ -1,5 +1,23 @@
 <template>
   <div class="home-page">
+    <a-card class="hero-card" :bordered="false">
+      <div class="hero">
+        <div class="hero-main">
+          <div class="hero-title">一次性链接管理系统</div>
+          <div class="hero-desc">安全分享敏感信息，访问即失效；支持密文分享、邮箱验证、临时下载等场景。</div>
+          <a-space>
+            <a-button type="primary" @click="router.push('/create')">创建链接</a-button>
+            <a-button @click="router.push('/manage')">链接管理</a-button>
+          </a-space>
+        </div>
+        <div class="hero-badges">
+          <a-tag color="blue">一次性访问</a-tag>
+          <a-tag color="green">可设置过期</a-tag>
+          <a-tag color="purple">支持通知</a-tag>
+        </div>
+      </div>
+    </a-card>
+
     <a-row :gutter="[16, 16]">
       <!-- 统计卡片 -->
       <a-col :xs="24" :sm="12" :md="6">
@@ -80,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, h } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import {
@@ -101,10 +119,10 @@ const store = useOnetimeStore()
 const { links, statistics, loading } = storeToRefs(store)
 
 const quickCreateItems = [
-  { type: 'secret_share', title: '密文分享', desc: '安全分享敏感信息', icon: h(LockOutlined) },
-  { type: 'email_verify', title: '邮箱验证', desc: '验证邮箱地址', icon: h(MailOutlined) },
-  { type: 'password_reset', title: '密码重置', desc: '重置用户密码', icon: h(KeyOutlined) },
-  { type: 'file_download', title: '文件下载', desc: '临时文件授权', icon: h(FileOutlined) },
+  { type: 'secret_share', title: '密文分享', desc: '安全分享敏感信息', icon: LockOutlined },
+  { type: 'email_verify', title: '邮箱验证', desc: '验证邮箱地址', icon: MailOutlined },
+  { type: 'password_reset', title: '密码重置', desc: '重置用户密码', icon: KeyOutlined },
+  { type: 'file_download', title: '文件下载', desc: '临时文件授权', icon: FileOutlined },
 ]
 
 const handleQuickCreate = (type: string) => {
@@ -118,6 +136,41 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.hero-card {
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, rgba(22, 119, 255, 0.14), rgba(82, 196, 26, 0.12));
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.hero-main {
+  max-width: 640px;
+}
+
+.hero-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  margin-bottom: 8px;
+}
+
+.hero-desc {
+  color: rgba(0, 0, 0, 0.65);
+  margin-bottom: 16px;
+}
+
+.hero-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
 .section-card {
   margin-top: 16px;
 }
@@ -125,6 +178,7 @@ onMounted(() => {
 .quick-card {
   text-align: center;
   cursor: pointer;
+  height: 100%;
 }
 
 .quick-icon {
@@ -146,5 +200,20 @@ onMounted(() => {
 .link-info {
   font-size: 12px;
   color: #666;
+}
+
+@media (max-width: 576px) {
+  .hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hero-title {
+    font-size: 18px;
+  }
+
+  .hero-badges {
+    justify-content: flex-start;
+  }
 }
 </style>

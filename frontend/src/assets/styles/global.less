@@ -4,12 +4,32 @@
   box-sizing: border-box;
 }
 
+:root {
+  --app-bg: #f6f7fb;
+  --app-surface: #ffffff;
+  --app-border: rgba(0, 0, 0, 0.06);
+  --app-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --app-radius: 12px;
+  --app-container-max-width: 1120px;
+  --app-container-padding: 24px;
+}
+
+@media (max-width: 576px) {
+  :root {
+    --app-container-padding: 12px;
+  }
+}
+
 html,
 body {
   height: 100%;
   font-size: 14px;
   color: #333;
-  background-color: #f0f2f5;
+  background: radial-gradient(1200px 600px at 10% 0%, rgba(22, 119, 255, 0.14) 0%, rgba(22, 119, 255, 0) 60%),
+    radial-gradient(900px 500px at 90% 10%, rgba(82, 196, 26, 0.12) 0%, rgba(82, 196, 26, 0) 55%),
+    var(--app-bg);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 a {
@@ -39,6 +59,23 @@ a:hover {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+.ant-card {
+  border-radius: var(--app-radius);
+}
+
+.ant-card-bordered {
+  border-color: var(--app-border);
+}
+
+.ant-card-hoverable {
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.ant-card-hoverable:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--app-shadow);
 }
 
 // 通用类名

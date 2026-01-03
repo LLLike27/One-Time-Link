@@ -51,6 +51,7 @@
         <a-table
           :columns="logColumns"
           :data-source="link?.logs || []"
+          :scroll="{ x: 900 }"
           row-key="id"
           :pagination="{ pageSize: 10 }"
         >
@@ -87,11 +88,11 @@ const store = useOnetimeStore()
 const { currentLink: link, loading } = storeToRefs(store)
 
 const logColumns = [
-  { title: '访问时间', dataIndex: 'visit_time', key: 'visit_time', width: 180 },
+  { title: '访问时间', dataIndex: 'visit_time', key: 'visit_time', width: 170 },
   { title: 'IP地址', dataIndex: 'ip_address', key: 'ip_address', width: 140 },
-  { title: '地理位置', key: 'location', width: 150 },
+  { title: '地理位置', key: 'location', width: 180, ellipsis: true },
   { title: '访问结果', dataIndex: 'visit_result', key: 'visit_result', width: 100 },
-  { title: 'User-Agent', dataIndex: 'user_agent', key: 'user_agent'},
+  { title: 'User-Agent', dataIndex: 'user_agent', key: 'user_agent', width: 320, ellipsis: true },
 ]
 
 const linkId = computed(() => Number(route.params.id))
@@ -129,8 +130,22 @@ onUnmounted(() => {
 
 <style scoped>
 .link-detail-page {
-  background: #fff;
+  background: var(--app-surface);
   padding: 24px;
-  border-radius: 8px;
+  border-radius: var(--app-radius);
+  border: 1px solid var(--app-border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.link-detail-page :deep(.ant-page-header-heading-sub-title) {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 576px) {
+  .link-detail-page {
+    padding: 16px;
+  }
 }
 </style>

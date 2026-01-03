@@ -10,6 +10,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f0f2f5;
+  padding: var(--app-container-padding);
+  background: transparent;
 }
 </style>
